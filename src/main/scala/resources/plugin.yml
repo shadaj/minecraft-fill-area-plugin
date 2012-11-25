@@ -1,0 +1,22 @@
+main: shadaj.FillAreaPlugin
+name: FillAreaPlugin
+version: 1.0
+author: Shadaj
+description: A plugin that allows you to set all the blocks in a zone to a specific type.
+
+commands:
+  selectStart:
+    description: Enables selecting mode for the start block for filling.
+    usage: /<command>
+  selectEnd:
+    description: Enables selecting mode for the end block for filling.
+    usage: /<command>
+  setStart:
+    description: This sets the start location for filling.
+    usage: /<command> [x, y, z]
+  setEnd:
+    description: This sets the end location for filling.
+    usage: /<command> [x, y, z]
+  fill:
+    description: This sets the blocks based on start and end locations.
+    usage: /<command> [id]
