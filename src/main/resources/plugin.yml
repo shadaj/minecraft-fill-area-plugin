@@ -1,4 +1,4 @@
-main: shadaj.FillAreaPlugin
+main: me.shadaj.FillAreaPlugin
 name: FillAreaPlugin
 version: 1.0
 author: Shadaj

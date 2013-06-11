@@ -1,4 +1,4 @@
-package shadaj
+package me.shadaj
 
 import org.bukkit.World
 import org.bukkit.command.Command
@@ -9,11 +9,11 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.plugin.PluginManager
-import BukkitImplicits._
+import org.bukkit.Location
 
-class FillAreaPlugin extends JavaPlugin {
-  var start = (0, 0, 0)
-  var end = (0, 0, 0)
+class FillAreaPlugin extends ScalaPlugin {
+  var start: Option[Location] = None
+  var end: Option[Location] = None
 
   var selectingStart = false
   var selectingEnd = false
@@ -22,26 +22,24 @@ class FillAreaPlugin extends JavaPlugin {
     if (selectingStart) {
       e.getPlayer.sendMessage("Selected a start block for filling")
       val blockPlaced = e.getBlockPlaced
-      val location = (blockPlaced.getX, blockPlaced.getY, blockPlaced.getZ)
-      start = location
+      start = Some(blockPlaced.getLocation())
       selectingStart = false
       selectingEnd = false
     } else if (selectingEnd) {
       e.getPlayer.sendMessage("Selected an end block for filling")
       val blockPlaced = e.getBlockPlaced
-      val location = (blockPlaced.getX, blockPlaced.getY, blockPlaced.getZ)
-      end = location
+      end = Some(blockPlaced.getLocation())
       selectingStart = false
       selectingEnd = false
     } else {
-      
+
     }
   }
 
   override def onEnable {
     getServer.getPluginManager.registerEvents(blockPlace, this)
   }
-  
+
   override def onCommand(sender: CommandSender, command: Command, label: String, args: Array[String]): Boolean = {
     val player = sender.asInstanceOf[Player]
     val commandName = command.getName
@@ -58,28 +56,34 @@ class FillAreaPlugin extends JavaPlugin {
       val z = args(2).toInt
 
       player sendMessage "Setting start location"
-      start = (x, y, z)
+      start = Some(new Location(player.getWorld(), x, y, z))
     } else if (commandName == "setEnd") {
       val x = args(0).toInt
       val y = args(1).toInt
       val z = args(2).toInt
 
       player sendMessage "Setting end location"
-      end = (x, y, z)
+      end = Some(new Location(player.getWorld(), x, y, z))
     } else if (commandName == "fill") {
       player sendMessage "Filling blocks"
 
       val world = player.getWorld
       val id = args(0).toInt
 
-      for (
-        x <- (start._1 min end._1) to (start._1 max end._1);
-        y <- (start._2 min end._2) to (start._2 max end._2);
-        z <- (start._3 min end._3) to (start._3 max end._3)
-      ) {
-        val blockToEdit = world.getBlockAt(x, y, z)
+      if (!start.isDefined || !end.isDefined) {
+        player.sendMessage("You have not selected both a start and end")
+      } else {
+    	val s = start.get
+    	val e = end.get
+        for (
+          x <- (s.getBlockX min e.getBlockX) to (s.getBlockX max e.getBlockX);
+          y <- (s.getBlockY min e.getBlockY) to (s.getBlockY max e.getBlockY);
+          z <- (s.getBlockZ min e.getBlockZ) to (s.getBlockZ max e.getBlockZ)
+        ) {
+          val blockToEdit = world.getBlockAt(x, y, z)
 
-        blockToEdit.setTypeId(id)
+          blockToEdit.setTypeId(id)
+        }
       }
     }
     true
